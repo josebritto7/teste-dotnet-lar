@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Lar.TesteDotNet.Infrastructure.Database;
 
@@ -12,8 +13,11 @@ public static class MigrateConfiguration
 
         if (db.Database.IsSqlite())
         {
-            db.Database.EnsureDeleted();
-            db.Database.EnsureCreated();
+            var resetOnStartup = app.Configuration.GetValue<bool>("Database:ResetOnStartup");
+            if (resetOnStartup)
+                db.Database.EnsureDeleted();
+
+            EnsureSqliteCreated(db);
             return;
         }
 
@@ -26,5 +30,22 @@ public static class MigrateConfiguration
         }
 
         db.Database.EnsureCreated();
+    }
+
+    private static void EnsureSqliteCreated(AppDbContext db)
+    {
+        try
+        {
+            db.Database.EnsureCreated();
+        }
+        catch (SqliteException ex) when (IsTableAlreadyExists(ex))
+        {
+        }
+    }
+
+    private static bool IsTableAlreadyExists(SqliteException exception)
+    {
+        return exception.SqliteErrorCode == 1 &&
+               exception.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase);
     }
 }

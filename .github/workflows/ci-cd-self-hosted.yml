@@ -37,6 +37,9 @@ jobs:
     runs-on: [self-hosted]
     needs: build
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: lar-testedotnet-deploy-main
+      cancel-in-progress: false
 
     env:
       APP_IMAGE_NAME: ${{ vars.APP_IMAGE_NAME || 'lar-testedotnet' }}

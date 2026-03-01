@@ -173,20 +173,25 @@ Variaveis/parametros suportados:
 
 ### Observacao sobre SQLite no container
 
-A rotina atual de inicializacao para SQLite executa `EnsureDeleted()` + `EnsureCreated()` a cada subida da API.  
-Mesmo com volume Docker, o banco e recriado a cada inicializacao (comportamento intencional para o contexto de teste tecnico).
+Por padrao, a API usa inicializacao idempotente no SQLite (`EnsureCreated`) e nao recria o banco automaticamente ao subir.  
+Se precisar forcar limpeza no startup, configure:
+
+- `Database:ResetOnStartup=true` (appsettings ou variavel de ambiente `Database__ResetOnStartup=true`).
 
 ## CI/CD (GitHub Actions)
 
-Pipeline criada em:
+Workflow criado em:
 
 - `.github/workflows/ci-cd-self-hosted.yml`
 
 Fluxo:
 
-1. `CI` no runner `self-hosted`: restore, build e testes da solucao.
-2. `CD` no runner `self-hosted` (apenas em `push` para `main`): build da imagem Docker e deploy em modo detach usando `./build/run-docker.sh`.
-3. Healthcheck no endpoint do Swagger para validar publicacao.
+1. Workflow `TesteLar WorkFlow`.
+2. Job `build` (`Build e Teste`) no runner `[self-hosted]`: restore, build e testes da solucao.
+3. Job `deploy` (`Publicação e deploy`) no runner `[self-hosted]`, dependente do `build`.
+4. Deploy executa apenas em `push` para `main` (nao roda em `pull_request`).
+5. Publicacao usa `./build/run-docker.sh` com variaveis de ambiente.
+6. Deploy serializado com `concurrency` para evitar execucoes concorrentes no mesmo ambiente.
 
 Variaveis opcionais de configuracao (Repository Variables):
 
@@ -199,7 +204,6 @@ Variaveis opcionais de configuracao (Repository Variables):
 Pre-requisitos no runner `self-hosted`:
 
 - Docker instalado e funcional.
-- `curl` disponivel para o healthcheck.
 
 ## Testes
 
