@@ -121,6 +121,10 @@ dotnet run --project src/Lar.TesteDotNet.Presentation
 - `http://localhost:5215/swagger`
 - `https://localhost:7029/swagger`
 
+Caso queira testar o Swagger sem precisar executar localmente:
+
+- `https://testelar.jbrt.xyz/swagger/index.html`
+
 ### Execucao via Docker
 
 O `Dockerfile` da aplicacao esta em `build/Dockerfile`.
