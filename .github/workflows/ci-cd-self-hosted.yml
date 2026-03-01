@@ -1,0 +1,65 @@
+name: TesteLar WorkFlow
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    
+jobs:
+  build:
+    name: Build e Teste
+    runs-on: [self-hosted]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore Lar.TesteDotNet.sln
+
+      - name: Build
+        run: dotnet build Lar.TesteDotNet.sln --no-restore --configuration Release
+
+      - name: Testes
+        run: dotnet test Lar.TesteDotNet.sln --no-build --configuration Release
+
+  deploy:
+    name: Publicação e deploy
+    runs-on: [self-hosted]
+    needs: ci
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    env:
+      APP_IMAGE_NAME: ${{ vars.APP_IMAGE_NAME || 'lar-testedotnet' }}
+      APP_CONTAINER_NAME: ${{ vars.APP_CONTAINER_NAME || 'lar-testedotnet-api' }}
+      APP_HOST_PORT: ${{ vars.APP_HOST_PORT || '5215' }}
+      APP_ENVIRONMENT: ${{ vars.APP_ENVIRONMENT || 'Development' }}
+      APP_DB_VOLUME: ${{ vars.APP_DB_VOLUME || 'lar_testedotnet_data' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar Docker
+        run: docker --version
+
+      - name: Garantir permissao de execucao do script
+        run: chmod +x ./build/run-docker.sh
+
+      - name: Build e Deploy do container
+        run: |
+          IMAGE_NAME="${APP_IMAGE_NAME}:latest" \
+          CONTAINER_NAME="${APP_CONTAINER_NAME}" \
+          HOST_PORT="${APP_HOST_PORT}" \
+          ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
+          DB_VOLUME="${APP_DB_VOLUME}" \
+          ./build/run-docker.sh

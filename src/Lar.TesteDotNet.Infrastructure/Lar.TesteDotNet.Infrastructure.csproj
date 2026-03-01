@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\" />
+      <Folder Include="Configurations\" />
+      <Folder Include="Database\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lar.TesteDotNet.Domain\Lar.TesteDotNet.Domain.csproj" />
+      <ProjectReference Include="..\Lar.TesteDotNet.Shared\Lar.TesteDotNet.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+    </ItemGroup>
+
+</Project>

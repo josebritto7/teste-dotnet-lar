@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Handlers\Dtos\" />
+      <Folder Include="Messaging\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lar.TesteDotNet.Shared\Lar.TesteDotNet.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.9" />
+    </ItemGroup>
+
+</Project>
