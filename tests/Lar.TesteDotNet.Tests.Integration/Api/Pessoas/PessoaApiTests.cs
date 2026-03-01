@@ -82,6 +82,39 @@ public class PessoaApiTests : IntegrationTestBase
     }
 
     [Test]
+    public async Task Post_Should_Return_BadRequest_When_Cpf_Duplicated()
+    {
+        var duplicateCpf = NextCpf();
+
+        var firstPayload = new CreatePessoaCommand
+        {
+            Nome = _faker.Name.FullName(),
+            Cpf = duplicateCpf,
+            DataNascimento = _faker.Date.Past(30, DateTime.UtcNow.AddYears(-18))
+        };
+
+        var firstCreate = await Client.PostAsJsonAsync("/api/pessoas", firstPayload);
+        await EnsureCreated(firstCreate);
+
+        var secondPayload = new CreatePessoaCommand
+        {
+            Nome = _faker.Name.FullName(),
+            Cpf = duplicateCpf,
+            DataNascimento = _faker.Date.Past(30, DateTime.UtcNow.AddYears(-18))
+        };
+
+        var duplicateCreate = await Client.PostAsJsonAsync("/api/pessoas", secondPayload);
+        duplicateCreate.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var response = await duplicateCreate.Content.ReadFromJsonAsync<ApiResponse<object>>();
+        response.Should().NotBeNull();
+        response!.Success.Should().BeFalse();
+        response.Errors.Should().NotBeNull();
+        response.Errors!.Any(e => e.Contains("Cpf", StringComparison.OrdinalIgnoreCase)
+                                  && e.Contains("cadastrado", StringComparison.OrdinalIgnoreCase)).Should().BeTrue();
+    }
+
+    [Test]
     public async Task Deactivate_Then_Activate_Should_Toggle_Ativo()
     {
         var id = _pessoaId;

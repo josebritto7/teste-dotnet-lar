@@ -1,7 +1,6 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Lar.TesteDotNet.Shared.Interfaces.Messaging;
-using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 namespace Lar.TesteDotNet.Application.Messaging.Behaviors;
 
@@ -24,7 +23,7 @@ public sealed class ValidationCommandBehavior<TCommand, TResponse>(
                 if (!result.IsValid) failures.AddRange(result.Errors);
             }
 
-            if (failures.Count > 0) throw new ValidationException(failures.ToString());
+            if (failures.Count > 0) throw new ValidationException(failures);
         }
 
         return await inner.Handle(command, cancellationToken);
